@@ -1,0 +1,74 @@
+---
+title: "Cassava export flows - Preparing for CIAT-blog"
+autor: Harold Achicanoy, Carlos Gonzalez & Patricia Alvarez
+output: html_notebook
+---
+
+# Cleaning and processing data
+
+First of all, let's see *trends* of reporter countries through the time for four periods (1986-1990, 1991-2000, 2001-2010, 2011-2013).
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# R options
+options(warn = -1)
+options(scipen = 999)
+
+# load packages
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+suppressMessages(library(ggplot2))
+
+# define directory and files to read
+setwd('D:/ToBackup/Modelling/global-futures-and-strategic-foresight')
+db_dir <- './_data/_cassava_data/'
+db_periods <- list.files(path = db_dir, pattern = '.csv$', full.names = T)
+periodList <- c('1986-1990', '1991-2000', '2001-2010', '2011-2013')
+
+# fixing country names
+aux <- lapply(db_periods, read.csv)
+aux <- do.call(rbind, aux)
+countryList <- sort(unique(c(as.character(aux$Reporter.Countries), as.character(aux$Partner.Countries))))
+countryList <- gsub(pattern = '* \\((.*?)\\)', replacement = '', x = countryList)
+countryList[grep(pattern = "Côte d'Ivoire", x = countryList, fixed = TRUE)] <- 'Ivory Coast'
+countryList[grep(pattern = "China, Hong Kong SAR", x = countryList, fixed = TRUE)] <- 'Hong Kong'
+countryList[grep(pattern = "China, Macao SAR", x = countryList, fixed = TRUE)] <- 'Macao'
+countryList[grep(pattern = "China, mainland", x = countryList, fixed = TRUE)] <- 'China'
+countryList[grep(pattern = "China, Taiwan Province of", x = countryList, fixed = TRUE)] <- 'Taiwan'
+
+countryList <- countryList[-grep(pattern = "Belgium-Luxembourg", x = countryList, fixed = TRUE)]
+countryList <- countryList[-grep(pattern = "Unspecified", x = countryList, fixed = TRUE)]
+
+rm(aux)
+
+# plotting time series per country through periods
+db_time <- lapply(1:length(db_periods), function(i){
+  z <- read.csv(db_periods[i])
+  z$X <- NULL
+  colnames(z) <- c('Reporter', 'Partner', 'Mean')
+  z$Period <- i
+  return(z)
+})
+db_time <- do.call(rbind, db_time)
+
+# general
+db_time %>% ggplot(aes(Period, Mean)) +
+#  geom_line(alpha = 1/3) +
+  geom_smooth(method = 'loess', se = FALSE) +
+  geom_point(alpha = 1/3) +
+  theme_bw()
+
+# by reporter countries
+db_time %>% ggplot(aes(Period, Mean)) +
+  geom_smooth(aes(colour = Reporter, group = Reporter), method = 'lm', se = FALSE) +
+  geom_point(aes(group = Reporter), alpha = 1/3) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1))
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
