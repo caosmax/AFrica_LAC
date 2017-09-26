@@ -81,7 +81,6 @@ for(i in 1:length(cdata)){
       cdata[[i]]<- filter(cdata[[i]], Scenarios %in% s)
       cdata[[i]]<- filter(cdata[[i]], !Regions %in% rall) 
    
-      
       cdata[[i]]<- filter(cdata[[i]], Commodity %in% rtb)
       
       cdata[[i]]<-  cdata[[i]]%>% spread(Year, Val) 
@@ -270,8 +269,8 @@ for(i in 1:length(ad_jrbind)){
 ad_crbind<- crbind %>% split(crbind$Sce)
 cfiles<- list()
 usaid<- c("HIGH","HIGH+NARS","REF","REGION","RMM")
-# c=1
-# s=1
+ c=1
+ s=1
 for(s in 1:length(ad_crbind)){ 
       
       cfiles[[s]]<- ad_crbind[[s]] %>% spread(parameter, change)

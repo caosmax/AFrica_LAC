@@ -44,7 +44,7 @@ saveRDS(datasys, file = paste(rdsFiles, "datasys.rds",sep = ""))
 rm(clist,datasys)
 
 # Datos categorias totales-------------
-datatotal<- c("TAreaXAgg", "TYldXAgg", "QSupXAgg") # agregado TYldXAgg, 
+datatotal<- c("TAreaXAgg", "TYldXAgg") # agregado TYldXAgg, "QSupXAgg"
 clist<-list()
 for( i in 1:length(datatotal)){
       #load files
